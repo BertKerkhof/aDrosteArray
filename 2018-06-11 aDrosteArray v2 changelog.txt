@@ -1,0 +1,41 @@
+﻿; 2018-06-11 aDrosteArray 2.0 ChangeLog
+
+; ++ Version 1.0 was introduced silently and only has a few users
+;    so the liberty is taken to rename a few functions:
+;         rRecite()  =>  sRecite()
+;         aMax()  =>  MaxA()
+;         aMin()  =>  MinA()
+;    The new names better reflect the type of the return value or
+;    the type of parameter.
+; ++ Repaired error in aInsert() when inserting multiple elements
+;    at once.
+; ++ StringFromArray() and ArrayFromString() now also work for
+;    array's with zero elements.
+; ++ Increased the # of parameters aConcat(), aD() and aFlat()can
+;    receive to 16.
+; ++ aDroste() now also can take 2dim array input.
+; ++ Changed array memory allocation from incremental to dynamic in:
+;    aNewArray() aAdd() and aInsert().
+;    Physical array dimensions are now automatically maintained at
+;    16, 32, 64, 128, 256 .. and so forth, depending on need.
+;    Advantage: speed increase of functions aAdd() and aInsert().
+;    This change discourages the use of Ubound(). The count property
+;    that is held in the element with index zero, is not affected.
+;    For programs that always read the count property to determine
+;    the number of array elements, no code change is necessary.
+;    For a hands-on experience of the working of dynamic memory
+;    allocation, see TestNewDim().
+; ++ Redim is removed from aConcat() aDelete() and aLeft().
+; ++ Learn about the differences between zquare array's and the
+;    array-in-array principle with TestzSquareAndaDroste().
+; ++ Error reports are more detailed.
+; ++ Added functions: sHex() msBrace() aSquare() and Lif()
+; ++ The use of GetA() is discouraged because after reading in the
+;    help files under: Language Reference => Variables => Data types in
+;    array's, it appeared that an array stored inside another can be
+;    accessed directly. To directly assign values to an array inside
+;    another is no solution other than SetA() and IncrA().
+; ++ aDrosteArray dependents on StringElaborate and FileJuggler which
+;    both are published at GitHub.
+;
+;           kerkhof.bert@gmail.com
