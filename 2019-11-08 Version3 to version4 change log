@@ -1,0 +1,30 @@
+Version3 to version4 change log:
+================================
+
+The aim of version4 is a return to basics for educational purpose.
+
+Less used functions aRound(), aDec(), aHex(), aCompare(),
+  msBrace(), aSquare(), StringUtfArray() ArrayUtfString(),
+  StringFromArray(), ArrayFromString(), WriteArray() and
+  ReadArray() are discontinued.
+
+The GetA() function is surpassed by the ($Array[$I])[$J] construct.
+
+aNewArray() is renamed to aNew().
+aNew() has one parameter, supports single-dimensioned arrays only.
+aConcat() is renamed to Array().
+
+sRecite() now can have a numeric value as separator parameter.
+  In that case the outputted array elements will be right-justified.
+
+aDrosteArray no longer depends on the modules FileJuggler and
+  StringElaborate. A new dependency is on GitHub published module
+  StringSupport.
+
+
+Version2 to version3 change log
+===============================
+
+aStringFindAll() is renamed to aStringLocate().
+
+--
