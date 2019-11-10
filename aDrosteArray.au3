@@ -1,31 +1,31 @@
-﻿#Region ;**** Directives created by AutoIt3Wrapper_GUI ***
+﻿#Region ;**** Directives created by AutoIt3Wrapper_GUI **
 #AutoIt3Wrapper_Outfile=aDrosteArray.exe
 #AutoIt3Wrapper_UseUpx=y
-#AutoIt3Wrapper_Res_Description=Droste array functions
+#AutoIt3Wrapper_Res_Description=Droste array functions with errorchecking
 #AutoIt3Wrapper_Res_Fileversion=2.0
-#AutoIt3Wrapper_Res_LegalCopyright=Bert Kerkhof 2019-11-07 Apache 2.0 license
+#AutoIt3Wrapper_Res_LegalCopyright=Bert Kerkhof 2019-11-10 Apache 2.0 license
 #AutoIt3Wrapper_Res_SaveSource=n
 #AutoIt3Wrapper_AU3Check_Parameters=-d -w 3 -w 4 -w 5
 #AutoIt3Wrapper_Run_Tidy=y
 #Tidy_Parameters=/tc 2 /reel
 #AutoIt3Wrapper_Run_Au3Stripper=y
 #Au3Stripper_Parameters=/pe /sf /sv /rm
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ***
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI **
 
 ; Version 4
 ; The latest version of this source is published at GitHub in the
 ; BertKerkhof repository "aDrosteArray".
 
 #include-once
-#include <AutoItConstants.au3>; Delivered with AutoIT
+#include <AutoItConstants.au3>; Delivered With AutoIT
 #include <StringConstants.au3>; Delivered With AutoIT
 #include <FileConstants.au3>; Delivered With AutoIT
-#include <StringSupport.au3>; GitHub published by Bert Kerkhof
+#include <StringSupport.au3>; GitHub published
 
 ; Author: Bert Kerkhof ( kerkhof.bert@gmail.com )
 ; Tested with AutoIT v3.3.14.5 interpreter/compiler and win10
 
-
+;
 ; aDrosteArray module : basic array-in-array functions ================
 ;    These differ from zero based array routines delivered with many
 ;    traditional computer interpreters and compilers. They also differ with
@@ -100,7 +100,8 @@
 ;    Array type conversion:
 ;       + aDroste         + Convert zero-based array to type Droste
 
-; Version3 to version4 changeLog:
+;
+; Version3 to version4 changeLog ======================================
 ; The aim of version4 is a return to basics for educational purpose.
 ;   Less used functions aRound(), aDec(), aHex(), aCompare(),
 ;     msBrace(), aSquare(), StringUtfArray() ArrayUtfString(),
@@ -112,16 +113,19 @@
 ;   aConcat() is renamed to Array().
 ;   sRecite() now can have a numeric value as separator parameter.
 ;     In that case the outputted array elements will be right-justified.
+;   aDrosteArray no longer depends on the modules FileJuggler and
+;     StringElaborate.
+;   A new dependency is on GitHub published module StringSupport.
 
 ; Version2 to version3 changeLog
 ;   aStringFindAll() is renamed to aStringLocate().
 
-
+;
 ; Create and build ====================================================
 
 ; #FUNCTION#
 ; Name ..........: aNew
-; Description ...: Create a new Droste array with the specified dimension.
+; Description ...: Create a new Droste array with the specified dimension
 ; Syntax ........: aNew([$nDim = 0])
 ; Parameters ....: $nDim ... [optional] number of elements the array
 ;                            contains. By default the array has zero
@@ -142,13 +146,15 @@ Func aNew(Const $nDim = 0) ; Create a new array
     Local $B[$nDim + 1]
     $B[0] = $nDim
     Return $B
+  Else
+    $A[0] = 0
+    Return $A
   EndIf
-  Return $A
 EndFunc   ;==>aNew
 
 ; #FUNCTION#
 ; Name ..........: aAdd
-; Description ...: Add a value at the end of an array.
+; Description ...: Add a value at the end of an array
 ; Syntax ........: aAdd(Byref $aArray, Const $Value)
 ; Parameters ....: $aArray ... [in/out] array to extend.
 ;                  $Value .... [const] value to add.
@@ -161,15 +167,16 @@ EndFunc   ;==>aNew
 
 Func aAdd(ByRef $aArray, Const $Row)
   If _bounds1($aArray) Then Return _errmess("aAdd", @error, 0, 0)
-  $aArray[0] += 1
-  _NewDim($aArray)
-  $aArray[$aArray[0]] = $Row
-  Return $aArray[0]
+  Local $Index = $aArray[0] + 1
+  $aArray[0] = $Index
+  If UBound($aArray) = $Index Then _NewDim($aArray, $Index)
+  $aArray[$Index] = $Row
+  Return $Index
 EndFunc   ;==>aAdd
 
 ; #FUNCTION#
 ; Name ..........: Array
-; Description ...: Concatenates up to 16 values.
+; Description ...: Concatenates up to 16 values
 ; Syntax ........: Array([$A = 0[, $B = 0[, $C = 0[, $D = 0[, $E = 0[, $F = 0[, $G = 0[, $H = 0[, $I = 0[, $J = 0[,
 ;                  $K = 0[, $M = 0[, $N = 0[, $P = 0[, $Q = 0[, $R = 0]]]]]]]]]]]]]]]])
 ; Parameters ....: $A to $R....[optional] up to 16 values:
@@ -202,7 +209,7 @@ Func aD($A = 0, $B = 0, $C = 0, $D = 0, $E = 0, $F = 0, $G = 0, $H = 0, $I = 0, 
   Local Static $aSave = aNew()
   Switch $nParam
     Case 0
-      Local $aResult= $aSave
+      Local $aResult = $aSave
       $aSave = aNew(0)
       Return $aResult
     Case Else
@@ -225,7 +232,7 @@ Func aRecite(Const $rString, Const $Sep = '|')
   Return StringSplit($rString, $Sep) ; ® Split on vertical bar (not on comma)
 EndFunc   ;==>aRecite
 
-
+;
 ; Display =============================================================
 
 ; #FUNCTION#
@@ -248,18 +255,18 @@ Func sRecite(Const $aArray, Const $Sep = '|', $sPrefix = "", $sPostfix = "")
   If _bounds1($aArray) Then Return _errmess("sRecite", @error, 0, '')
   Local $sOut = ""
   If IsNumber($Sep) Then
-    For $I = 1 to $aArray[0]
-      $sOut &= sJustR($sPreFix & $aArray[$I] & $sPostfix, $Sep)
+    For $I = 1 To $aArray[0]
+      $sOut &= sJustR($sPrefix & $aArray[$I] & $sPostfix, $Sep)
     Next
     Return $sOut ; ® readable result
   EndIf
-  For $I = 1 to $aArray[0]
+  For $I = 1 To $aArray[0]
     $sOut &= $sPrefix & $aArray[$I] & $sPostfix & $Sep
   Next
   Return StringTrimRight($sOut, StringLen($Sep))
 EndFunc   ;==>sRecite
 
-
+;
 ; Operations on elements ==============================================
 
 ; #FUNCTION#
@@ -308,14 +315,14 @@ EndFunc   ;==>IncrA
 
 ; #FUNCTION#
 ; Name ..........: Max
-; Description ...: Compare numbers and return the highest one.
+; Description ...: Compare numbers and return the highest one
 ; Syntax ........: Max(Const $N1, Const $N2)
 ; Parameters ....: $N1, $N2 ... [const] numbers to compare
 ; Returns .......: Highest value.
 ; Author ........: Bert Kerkhof
 
 Func Max(Const $N1, Const $N2)
-  Return $N1>$N2 ? $N1 : $N2
+  Return $N1 > $N2 ? $N1 : $N2
 EndFunc   ;==>Max
 
 ; #FUNCTION#
@@ -327,12 +334,12 @@ EndFunc   ;==>Max
 ; Author ........: Bert Kerkhof
 
 Func Min(Const $N1, Const $N2)
-  Return $N1>$N2 ? $N2 : $N1
+  Return $N1 > $N2 ? $N2 : $N1
 EndFunc   ;==>Min
 
 ; #FUNCTION#
 ; Name ..........: MaxA
-; Description ...: Return the highest value of a numeric array.
+; Description ...: Return the highest value of a numeric array
 ; Syntax ........: MaxA(Const $aArray[, $iStart = 1[, $iEnd = 0]])
 ; Parameters ....: $aArray ........ Array to evaluate
 ;                  $iStart, $End .. [optional] range of array elements
@@ -351,7 +358,7 @@ EndFunc   ;==>MaxA
 
 ; #FUNCTION#
 ; Name ..........: MinA
-; Description ...: Return the lowest value of a numeric array.
+; Description ...: Return the lowest value of a numeric array
 ; Syntax ........: MinA(Const $aArray[, $iStart = 1[, $iEnd = 0]])
 ; Parameters ....: $aArray ........ Array to evaluate
 ;                  $iStart, $End .. [optional] range of array elements
@@ -370,7 +377,7 @@ EndFunc   ;==>MinA
 
 ; #FUNCTION#
 ; Name ..........: LastIndex
-; Description ...: Return the highest index number of array.
+; Description ...: Return the highest index number of array
 ; Syntax ........: LastIndex(Const $aArray)
 ; Parameters ....: $aArray..... [const] array to inspect.
 ; Returns .......: Index number
@@ -381,12 +388,12 @@ Func LastIndex(Const $aArray)
   Return $aArray[0]
 EndFunc   ;==>LastIndex
 
-
+;
 ; Operations on rows and matrix =======================================
 
 ; #FUNCTION#
 ; Name ..........: aColumn
-; Description ...: Create single dim array from column in a multi-dim array.
+; Description ...: Create single dim array from column in a multi-dim array
 ; Syntax ........: aColumn(Const $aaArray[, $iColumn = 1[, $iStart = 1[, $iEnd = 0]]])
 ; Parameters ....: $aaArray......... [const] two-dimensional array.
 ;                  $iColumn......... [optional] integer value. Default is 1.
@@ -398,7 +405,7 @@ Func aColumn(Const $aaArray, Const $iColumn = 1, Const $iStart = 1, $iEnd = 0)
   If $iEnd = 0 Then $iEnd = $aaArray[0]
   If _bounds3($aaArray, $iColumn, $iStart, $iEnd) Then Return _errmess("aColumn", @error, @extended, aNew())
   Local $N = $iEnd - $iStart + 1, $nOffset = $iStart - 1
-  Local $aArray, $aResult= aNew($N)
+  Local $aArray, $aResult = aNew($N)
   For $I = 1 To $N
     $aArray = $aaArray[$I + $nOffset]
     $aResult[$I] = $aArray[$iColumn]
@@ -408,7 +415,7 @@ EndFunc   ;==>aColumn
 
 ; #FUNCTION#
 ; Name ..........: aLeft
-; Description ...: Return the first $N elements of an array.
+; Description ...: Return the first $N elements of an array
 ; Syntax ........: aLeft($aArray[, $N = 1])
 ; Parameters ....: $aArray ..... Source array.
 ;                  $N .......... [optional] number of elements to return.
@@ -425,7 +432,7 @@ EndFunc   ;==>aLeft
 
 ; #FUNCTION#
 ; Name ..........: aRight
-; Description ...: Return the last $N elements of an array.
+; Description ...: Return the last $N elements of an array
 ; Syntax ........: aRight(Const $aIn[, $N = 1])
 ; Parameters ....: $aIn ..... [const] source array.
 ;                  $N ....... [optional] number of elements to return.
@@ -445,7 +452,7 @@ EndFunc   ;==>aRight
 
 ; #FUNCTION#
 ; Name ..........: aMid
-; Description ...: Return selection of array elements.
+; Description ...: Return selection of array elements
 ; Syntax ........: aMid(Const $aIn, $I[, $N = 2147483647])
 ; Parameters ....: $aIn .... [const] source array
 ;                  $I ...... First element to select
@@ -466,12 +473,12 @@ Func aMid(Const $aIn, $I, $N = 2147483647) ; Max 32 bit integer (2**31 - 1)
   Return $aOut
 EndFunc   ;==>aMid
 
-
+;
 ; Search and find =====================================================
 
 ; #FUNCTION#
 ; Name ..........: aSearch
-; Description ...: Search an element in one- or two-dimensional array.
+; Description ...: Search an element in one- or two-dimensional array
 ; Syntax ........: aSearch(Const $aArray, Const $Value[, $iColumn = 0[, $iStart = 1[, $iEnd = 0]]])
 ; Parameters ....: $aArray ......... Array to search in
 ;                  $Value .......... Element to search
@@ -539,10 +546,9 @@ EndFunc   ;==>aFindAll
 Func aStringLocate(Const $sString, Const $sSearch, Const $iStart = 1, $iEnd = 0)
   If $iEnd > StringLen($sString) Then $iEnd = StringLen($sString)
   Local $aResult = aNew()
-  If $iStart <1 or $iEnd<=0 Then Return _errmess("aStringLocate", 7, 0 , $aResult)
   Local $iOffset = $iStart
   While True
-    $iOffset = StringInStr($sString, $sSearch, $STR_NOCASESENSE, 1, $iOffset, $iEnd - $iStart + 1)
+    $iOffset = StringInStr($sString, $sSearch, $STR_NOCASESENSE, 1, $iOffset)
     If $iOffset = 0 Then ExitLoop
     aAdd($aResult, $iOffset)
     $iOffset += 1
@@ -550,7 +556,7 @@ Func aStringLocate(Const $sString, Const $sSearch, Const $iStart = 1, $iEnd = 0)
   Return $aResult
 EndFunc   ;==>aStringLocate
 
-
+;
 ; Array modification ==================================================
 
 ; #FUNCTION#
@@ -609,7 +615,7 @@ Func aInsert(ByRef $aArray, $iPos = 1, Const $Value = 0)
   Local $vPos
   Local $nSize = IsArray($Value) ? $Value[0] : 1
   $aArray[0] += $nSize ; Increase length of the array
-  _NewDim($aArray)
+  If UBound($aArray) >= $aArray[0] Then _NewDim($aArray, $aArray[0])
   For $J = $aArray[0] To $iPos + $nSize Step -1
     $aArray[$J] = $aArray[$J - $nSize]
   Next
@@ -672,12 +678,12 @@ Func aFill(ByRef $aArray, Const $vValue = 0)
   Return $N
 EndFunc   ;==>aFill
 
-
+;
 ; Sort ================================================================
 
 ; #FUNCTION#
 ; Name ..........: NumberCompare
-; Description ...: Compare two numbers.
+; Description ...: Compare two numbers
 ;                  Helper function for CombSort.
 ; Syntax ........: NumberCompare(Const $N1, Const $N2)
 ; Parameters ....: $N1, $N2 ... [const] numbers to compare
@@ -694,7 +700,7 @@ EndFunc   ;==>NumberCompare
 
 ; #FUNCTION#
 ; Name ..........: Lif
-; Description ...: Select value depending on condition.
+; Description ...: Select value depending on condition
 ;                  Helper function for CombSort.
 ; Syntax ........: Lif(Const $Logic, Const $P1[, $P2 = ''])
 ; Parameters ....: $Logic ..... [const] condition.
@@ -801,12 +807,12 @@ Func aSimpleCombSort(ByRef $aArray, Const $Ldescending = False, Const $Lnumeric 
   Return $nPass
 EndFunc   ;==>aSimpleCombSort
 
-
+;
 ; Array type conversion ===============================================
 
 ; #FUNCTION#
 ; Name ..........: aDroste
-; Description ...: Insert a count element at the zero element of an array.
+; Description ...: Insert a count element at the zero element of an array
 ; Syntax ........: aDroste(Const $aArray)
 ; Parameter......: $aArray .. 1Dim array to be converted
 ; Return value...: Drosted array
@@ -824,26 +830,25 @@ Func aDroste(Const $aArray) ; Convert 1dim array to type Droste
   Return $aResult
 EndFunc   ;==>aDroste
 
-
+;
 ; Internals ===========================================================
 
 ; #FUNCTION#
 ; Name ..........: _NewDim
-; Description ...: Internal allocation of array memory.
-; Syntax ........: _NewDim(Byref $aArray)
+; Description ...: Internal allocation of array memory
+; Syntax ........: _NewDim(Byref $aArray, $nDim)
 ; Parameters ....: $aArray .. [in/out] array to [re-]dimension
+;                  $nDim .... New dimension
 ; Returns .......: None
 ; Author ........: Bert Kerkhof
 
-Func _NewDim(ByRef $aArray)
-  ; Stepwise array memory allocation (speeds up aAdd())
-  If $aArray[0] < UBound($aArray) Then Return
+Func _NewDim(ByRef $aArray, $nDim)
+  ; Stepwise array memory allocation (speeds up aAdd, aInsert, amRegExCapture)
   ; 16, 32, 64, 128, 256, 512, 1024, 2048 ..
-  ReDim $aArray[2 ^ Ceiling(Log(Max($aArray[0] + 1, 16)) / Log(2))]
+  ReDim $aArray[2 ^ Ceiling(Log(Max($nDim + 1, 16)) / Log(2))]
 EndFunc   ;==>_NewDim
 
 Func _errmess(Const $sOrigin, Const $error, Const $extended, Const $Rvalue)
-  If @Compiled Then Return
   Local $aErr = aNew(7)
   $aErr[1] = 'Not an array'
   $aErr[2] = 'Not an array in second dim'
@@ -860,21 +865,18 @@ Func _errmess(Const $sOrigin, Const $error, Const $extended, Const $Rvalue)
 EndFunc   ;==>_errmess
 
 Func _bounds1(Const $aArray)
-  If @Compiled Then Return False
   If Not IsArray($aArray) Then Return SetError(1)
   Return False
 EndFunc   ;==>_bounds1
 
 Func _bounds2(Const $aArray, Const $iStart, Const $iEnd)
-  If @Compiled Then Return False
   If Not IsArray($aArray) Then Return SetError(1)
-  If $iStart < 1 Or $iStart>$aArray[0] Then Return SetError(5)
-  If $iEnd <= 0 Or $iEnd > $aArray[0] Then Return SetError(5)
+  If $iStart < 1 Then Return SetError(5) ; $iStart>$aArray[0] is allowed
+  If $iEnd < 0 Or $iEnd > $aArray[0] Then Return SetError(5) ; $iEnd=0 is allowed
   Return False
 EndFunc   ;==>_bounds2
 
 Func _bounds3(Const $aArray, Const $iColumn, Const $iStart, Const $iEnd)
-  If @Compiled Then Return False
   If _bounds2($aArray, $iStart, $iEnd) Then Return SetError(@error)
   If $iColumn < 0 Then Return SetError(6)
   If $iColumn = 0 Then Return False
@@ -885,8 +887,27 @@ Func _bounds3(Const $aArray, Const $iColumn, Const $iStart, Const $iEnd)
   Return False
 EndFunc   ;==>_bounds3
 
-
+;
 ; Tests ===============================================================
+
+; #FUNCTION#
+; Name ..........: Test_NewDim
+; Description ...: Demonstrate the dynamic allocation of array memory
+; Syntax ........: Test_NewDim()
+; Parameters ....: None
+; Returns .......: None
+; Author ........: Bert Kerkhof
+
+Func Test_NewDim()
+  Local $aArray = aNew()
+  Local $cOut = 'aNew, inital dimension: ' & UBound($aArray) & @LF
+  aInsert($aArray, 1, aNew(15))
+  $cOut &= 'after adding 15 values: ' & UBound($aArray) & @LF
+  aAdd($aArray, 1)
+  $cOut &= 'after adding the 16th value: ' & UBound($aArray)
+  MsgBox(64, "Test_NewDim", $cOut)
+EndFunc   ;==>Test_NewDim
+; Test_NewDim()
 
 ; #FUNCTION#
 ; Name ..........: UseDroste
@@ -905,14 +926,14 @@ Func UseDroste()
   aD("Joost ten Velde", "1984-03-20", "Editor", False, aRecite("Amsterdam|Maastricht"))
   aD("Richard Nix", "1987-07-14", "Plumber", True, aRecite("Antwerpen|Paris"))
   Local $aPeople = aD()
-  MsgBox(64, "Number of people", $aPeople[0])
+  MsgBox(64, "Number of people", $aPeople[0]) ; Answer= '5'
 
   ; Search occupation of first teacher:
   Local $iFound = aSearch($aPeople, "Teacher", $pOCCUPATION)
   MsgBox(64, "Found", sRecite(aLeft($aPeople[$iFound], $pMARRIED), ", "))
 
   ; Retrieve teacher's places:
-  MsgBox(64, "Teacher's places", sRecite($aPeople[$iFound])[$pPLACES])
+  MsgBox(64, "Teacher's places", sRecite(($aPeople[$iFound])[$pPLACES]))
 
   ; Update Marijke's birthday:
   SetA($aPeople[aSearch($aPeople, 'Marijke van Dongen', $pNAME)], $pBIRTHDAY, "1983-04-25")
@@ -936,51 +957,11 @@ Func UseDroste()
   Local $nTest0 = aSimpleCombSort($aR0, True, True)
   MsgBox(64, "aSimpleCombSort. Zero elements. nPass=" & $nTest0, sRecite($aR0))
 
-  ; aStringFindAll :
+  ; aStringLocate :
   Local $S = "De kapper kapt knap maar de knecht van de knappe kapper kapt knapper dan de knappe kapper kappen kan"
   MsgBox(64, "Positions in string of 'kapper'", sRecite(aStringLocate($S, "kapper"), ", "))
 
 EndFunc   ;==>UseDroste
 ; UseDroste()
-
-; #FUNCTION#
-; Name ..........: sCountWord
-; Description ...: Literal for rank number
-; Syntax ........: sCountWord(Const $N[, $Luppercase = False])
-; Parameters ....: $N ........... [const] rank number
-;                  $Luppercase .. [optional] case of the first character of
-;                                 the word.
-; Returns .......: Literal string
-; Author ........: Bert Kerkhof
-
-Func sCountWord(Const $N, Const $Luppercase = False)
-  Local $aCountW = aRecite("First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eight|Nineth|Tenth")
-  Local $sR = ($N > 10) ? $N & 'th' : $aCountW[$N]
-  Return $Luppercase ? $sR : StringLower($sR)
-EndFunc   ;==>CountWord
-
-Func TestsCountWord()
-  MsgBox(64, "TestsCountWord", sCountWord(2))
-EndFunc
-; sTestsCountWord()
-
-; #FUNCTION#
-; Name ..........: Test_NewDim
-; Description ...: Demonstrate the dynamic allocation of array memory
-; Syntax ........: Test_NewDim()
-; Parameters ....: None
-; Returns .......: None
-; Author ........: Bert Kerkhof
-
-Func Test_NewDim()
-  Local $aArray = aNew()
-  Local $cOut = 'aNew, inital dimension: ' & UBound($aArray) & @LF
-  aInsert($aArray, 1, aNew(15))
-  $cOut &= 'after adding 15 values: ' & UBound($aArray) & @LF
-  aAdd($aArray, 1)
-  $cOut &= 'after adding the 16th value: ' & UBound($aArray)
-  MsgBox(64, "Test_NewDim", $cOut)
-EndFunc   ;==>Test_NewDim
-; Test_NewDim()
 
 ; End =================================================================
